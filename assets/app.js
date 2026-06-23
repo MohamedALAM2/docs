@@ -142,7 +142,6 @@
       </article>`;
     renderToc(doc);
     enhanceCodeBlocks();
-    bindInternalAnchors();
     setupHeadingObserver();
     $('#main').focus({preventScroll:true});
     const goAnchor = anchor || (location.hash.includes('#') ? location.hash.split('#')[1] : '');
@@ -170,19 +169,6 @@
       section?.classList.remove('collapsed');
       section?.querySelector('.nav-section-toggle')?.setAttribute('aria-expanded','true');
     }
-  }
-
-
-  function bindInternalAnchors(){
-    $$('.prose a[href^="#"]').forEach(a => a.addEventListener('click', (e)=>{
-      const id = a.getAttribute('href').slice(1);
-      const el = document.getElementById(id);
-      if(el && state.currentSlug){
-        e.preventDefault();
-        history.replaceState(null,'',`#/docs/${state.currentSlug}#${id}`);
-        el.scrollIntoView({behavior:'smooth', block:'start'});
-      }
-    }));
   }
 
   function setupHeadingObserver(){
