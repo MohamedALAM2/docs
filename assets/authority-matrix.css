@@ -1,0 +1,224 @@
+/* Authority Matrix visual upgrade for the Actors & Roles page */
+.authority-matrix-card {
+  position: relative;
+  overflow: hidden;
+  margin: 1.8rem 0 1.4rem;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at top left, rgba(255, 45, 32, .14), transparent 34%),
+    linear-gradient(135deg, color-mix(in srgb, var(--surface) 92%, transparent), color-mix(in srgb, var(--surface-2) 90%, transparent));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .13);
+}
+
+.authority-matrix-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--border) 30%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--border) 30%, transparent) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(to bottom, rgba(0,0,0,.36), transparent 70%);
+}
+
+.authority-matrix-head {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.35rem 1.35rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 76%, transparent);
+}
+
+.authority-matrix-kicker {
+  display: inline-flex;
+  width: fit-content;
+  margin-bottom: .55rem;
+  padding: .32rem .7rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 34%, transparent);
+  border-radius: 999px;
+  color: var(--primary);
+  background: color-mix(in srgb, var(--primary) 10%, transparent);
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.authority-matrix-head h3 {
+  margin: 0;
+  font-size: clamp(1.2rem, 2vw, 1.75rem);
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.authority-matrix-head p {
+  max-width: 56rem;
+  margin: .55rem 0 0;
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.authority-matrix-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+  min-width: max-content;
+}
+
+.authority-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .42rem;
+  padding: .45rem .68rem;
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 80%, transparent);
+  color: var(--muted);
+  font-size: .78rem;
+  font-weight: 750;
+  white-space: nowrap;
+}
+
+.authority-dot {
+  width: .55rem;
+  height: .55rem;
+  border-radius: 999px;
+  background: var(--primary);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--primary) 16%, transparent);
+}
+
+.authority-dot.limited { background: #f59e0b; box-shadow: 0 0 0 4px rgba(245,158,11,.16); }
+.authority-dot.blocked { background: #ef4444; box-shadow: 0 0 0 4px rgba(239,68,68,.16); }
+
+.authority-matrix-wrap {
+  position: relative;
+  overflow-x: auto;
+  padding: 1rem 1.35rem 1.35rem;
+}
+
+.authority-matrix-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: separate;
+  border-spacing: 0 .55rem;
+}
+
+.authority-matrix-table th {
+  padding: .55rem .65rem;
+  color: var(--muted);
+  font-size: .74rem;
+  font-weight: 850;
+  letter-spacing: .08em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.authority-matrix-table th:first-child {
+  text-align: left;
+}
+
+.authority-matrix-table td {
+  padding: .72rem .65rem;
+  background: color-mix(in srgb, var(--surface) 78%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.authority-matrix-table td:first-child {
+  border-left: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  border-radius: 18px 0 0 18px;
+  color: var(--text);
+  font-weight: 780;
+  text-align: left;
+}
+
+.authority-matrix-table td:last-child {
+  border-right: 1px solid color-mix(in srgb, var(--border) 55%, transparent);
+  border-radius: 0 18px 18px 0;
+}
+
+.authority-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  padding: .35rem .62rem;
+  border-radius: 999px;
+  font-size: .84rem;
+  font-weight: 850;
+}
+
+.authority-badge.allowed {
+  color: #16a34a;
+  background: rgba(22, 163, 74, .12);
+  border: 1px solid rgba(22, 163, 74, .28);
+}
+
+.authority-badge.blocked {
+  color: #ef4444;
+  background: rgba(239, 68, 68, .12);
+  border: 1px solid rgba(239, 68, 68, .28);
+}
+
+.authority-badge.none {
+  color: var(--muted);
+  background: color-mix(in srgb, var(--surface-2) 78%, transparent);
+  border: 1px solid color-mix(in srgb, var(--border) 72%, transparent);
+}
+
+.authority-badge.limited,
+.authority-badge.receive {
+  color: #d97706;
+  background: rgba(245, 158, 11, .13);
+  border: 1px solid rgba(245, 158, 11, .30);
+  white-space: nowrap;
+}
+
+.authority-insights {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .75rem;
+  padding: 0 1.35rem 1.35rem;
+}
+
+.authority-insight {
+  border: 1px solid color-mix(in srgb, var(--border) 65%, transparent);
+  border-radius: 20px;
+  padding: .95rem;
+  background: color-mix(in srgb, var(--surface) 72%, transparent);
+}
+
+.authority-insight strong {
+  display: block;
+  margin-bottom: .35rem;
+  color: var(--text);
+  font-size: .92rem;
+}
+
+.authority-insight span {
+  display: block;
+  color: var(--muted);
+  font-size: .82rem;
+  line-height: 1.55;
+}
+
+@media (max-width: 860px) {
+  .authority-matrix-head {
+    flex-direction: column;
+  }
+
+  .authority-matrix-legend {
+    min-width: 0;
+  }
+
+  .authority-insights {
+    grid-template-columns: 1fr;
+  }
+}
