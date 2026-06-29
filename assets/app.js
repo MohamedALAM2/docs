@@ -5,7 +5,70 @@
   const nav = DATA.nav;
   const bySlug = Object.fromEntries(docs.map(d => [d.slug, d]));
   const flatNav = nav.flatMap(s => s.items.map(i => ({...i, section:s.title})));
-  const state = { currentSlug: null, searchIndex: 0, headingsObserver: null };
+  const demoVideoBase = 'فيديوهات/';
+  const demoFeatures = [
+    {
+      slug: 'incident-dispatch',
+      title: 'Incident & Dispatch',
+      video: 'incident-and-dispatch.mp4',
+      description: 'A focused walkthrough of the dispatcher flow: reviewing AI-created incidents, checking context, committing a crime, and assigning the right field officer with a clear audit trail.'
+    },
+    {
+      slug: 'priority-engine',
+      title: 'Priority Engine',
+      video: 'priority-engine.mp4',
+      description: 'Shows how CrimeLens turns confidence, crime type, weapon signals, crowd context, time, and repeat-area data into an explainable operational priority.'
+    },
+    {
+      slug: 'citizen-tips',
+      title: 'Citizen Tips',
+      video: 'citizen-tips.mp4',
+      description: 'Demonstrates public tip intake, dispatcher triage, media review, and the decision path for promoting a credible report into an operational incident.'
+    },
+    {
+      slug: 'camera-streaming',
+      title: 'Cameras & Streaming',
+      video: 'cameras-and-streaming.mp4',
+      description: 'Covers camera monitoring, gateway-backed playback, evidence recording, stream handoff, and the way camera feeds support the dispatch workflow.'
+    },
+    {
+      slug: 'ai-integration',
+      title: 'AI Model Integration',
+      video: 'ai-model-integration.mp4',
+      description: 'Explains how the AI service reports detections through constrained machine APIs while CrimeLens keeps dispatch authority with the backend and human operator.'
+    },
+    {
+      slug: 'field-ops',
+      title: 'Crime Lifecycle & Field Ops',
+      video: 'crime-lifecycle-and-field-ops.mp4',
+      description: 'Walks through officer assignment, response state changes, mobile field updates, panic support, and case resolution from the operational side.'
+    },
+    {
+      slug: 'realtime-notifications',
+      title: 'Real-Time & Notifications',
+      video: 'real-time-and-notifications.mp4',
+      description: 'Highlights live queue updates, officer presence, station notifications, and mobile push events that keep every surface synchronized.'
+    }
+  ];
+  const demoPages = [
+    {
+      slug: 'intro',
+      title: 'Intro Video',
+      type: 'Demo',
+      video: 'intro-video.mp4',
+      description: 'A short introduction to CrimeLens, its core idea, and how the platform connects AI detections, dispatcher review, camera evidence, and field response.'
+    },
+    {
+      slug: 'full-project',
+      title: 'Full Project Video',
+      type: 'Project Walkthrough',
+      video: 'full-project-video.mp4',
+      description: 'The complete CrimeLens project walkthrough from the product concept through the main workflows, architecture, security model, and operational surfaces.'
+    },
+    ...demoFeatures.map(feature => ({...feature, type: 'Feature Demo', feature: true}))
+  ];
+  const byDemoSlug = Object.fromEntries(demoPages.map(d => [d.slug, d]));
+  const state = { currentSlug: null, currentDemoSlug: null, searchIndex: 0, headingsObserver: null };
 
   const $ = (sel, root=document) => root.querySelector(sel);
   const $$ = (sel, root=document) => [...root.querySelectorAll(sel)];
@@ -14,11 +77,12 @@
   const clamp = (n,min,max)=>Math.max(min,Math.min(max,n));
 
   function icon(name){
-    const map = {rocket:'✦',layers:'▣',sparkles:'✧',book:'☰'};
+    const map = {rocket:'✦',layers:'▣',sparkles:'✧',book:'☰',play:'▶'};
     return map[name] || '•';
   }
 
-  function initSidebar(){
+  function initSidebar(mode='docs'){
+    if(mode === 'demo') return initDemoSidebar();
     $('#doc-count').textContent = `${docs.length} pages`;
     const saved = JSON.parse(localStorage.getItem('crimelens-collapsed') || '{}');
     $('#sidebar-nav').innerHTML = nav.map((section, idx) => `
@@ -42,9 +106,40 @@
     }));
   }
 
+  function initDemoSidebar(){
+    $('#doc-count').textContent = `${demoPages.length} videos`;
+    $('#sidebar-nav').innerHTML = `
+      <div class="nav-section" data-section="Demo">
+        <button class="nav-section-toggle" type="button" aria-expanded="true">
+          <span class="nav-section-title"><span>${icon('play')}</span>Demo</span>
+          <span class="nav-chevron">⌄</span>
+        </button>
+        <div class="nav-items">
+          <a class="nav-link demo-nav-link" href="#/demo/intro" data-demo-slug="intro">Intro Video</a>
+          <a class="nav-link demo-nav-link" href="#/demo/full-project" data-demo-slug="full-project">Full Project Video</a>
+        </div>
+      </div>
+      <div class="nav-section" data-section="Feature Videos">
+        <button class="nav-section-toggle" type="button" aria-expanded="true">
+          <span class="nav-section-title"><span>${icon('sparkles')}</span>Features</span>
+          <span class="nav-chevron">⌄</span>
+        </button>
+        <div class="nav-items">
+          ${demoFeatures.map(item => `<a class="nav-link demo-nav-link" href="#/demo/${item.slug}" data-demo-slug="${item.slug}">${escapeHtml(item.title)}</a>`).join('')}
+        </div>
+      </div>`;
+    $$('.nav-section-toggle').forEach(btn => btn.addEventListener('click', () => {
+      const section = btn.closest('.nav-section');
+      section.classList.toggle('collapsed');
+      btn.setAttribute('aria-expanded', String(!section.classList.contains('collapsed')));
+    }));
+  }
+
   function renderHome(){
     state.currentSlug = null;
+    state.currentDemoSlug = null;
     document.title = 'CrimeLens Documentation';
+    initSidebar('docs');
     setActiveNav(null);
     $('#toc').innerHTML = `<a href="#/docs/overview">Overview</a><a href="#/docs/architecture">Architecture</a><a href="#/docs/security">Security</a><a href="#/docs/api">API Reference</a>`;
     $('#page-root').innerHTML = `
@@ -119,7 +214,9 @@
   function renderDoc(slug, anchor=''){
     const doc = bySlug[slug] || bySlug.overview;
     state.currentSlug = doc.slug;
+    state.currentDemoSlug = null;
     document.title = `${doc.title} · CrimeLens Documentation`;
+    initSidebar('docs');
     setActiveNav(doc.slug);
     const index = flatNav.findIndex(x => x.slug === doc.slug);
     const prev = flatNav[index-1];
@@ -152,6 +249,54 @@
     }
   }
 
+  function renderDemo(slug='intro'){
+    const page = byDemoSlug[slug] || byDemoSlug.intro;
+    state.currentSlug = null;
+    state.currentDemoSlug = page.slug;
+    document.title = `${page.title} · CrimeLens Demo`;
+    initDemoSidebar();
+    setActiveNav(null);
+    setActiveDemoNav(page.slug);
+    const featureIndex = demoFeatures.findIndex(f => f.slug === page.slug);
+    const prevFeature = featureIndex > 0 ? demoFeatures[featureIndex - 1] : null;
+    const nextFeature = featureIndex > -1 && featureIndex < demoFeatures.length - 1 ? demoFeatures[featureIndex + 1] : null;
+    const videoSrc = encodeURI(`${demoVideoBase}${page.video}`);
+    $('#toc').innerHTML = `<a href="#demo-video" class="active">Video</a><a href="#demo-description">Description</a>${page.feature ? '<a href="#feature-list">Feature list</a>' : '<a href="#feature-list">Features</a>'}`;
+    $('#page-root').innerHTML = `
+      <article class="doc-page demo-page">
+        <div class="breadcrumbs"><a href="#/">Home</a><span>/</span><span>Demo</span><span>/</span><strong>${escapeHtml(page.title)}</strong></div>
+        <header class="doc-hero demo-hero">
+          <div class="doc-meta"><span class="doc-pill">${escapeHtml(page.type)}</span><span class="doc-pill">Video walkthrough</span><span class="doc-pill">CrimeLens</span></div>
+          <h1>${escapeHtml(page.title)}</h1>
+          <p>${escapeHtml(page.description)}</p>
+        </header>
+        <section id="demo-video" class="demo-video-shell">
+          <video class="demo-video" controls preload="metadata" playsinline>
+            <source src="${videoSrc}" type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
+        </section>
+        <section id="demo-description" class="doc-layout-card demo-description">
+          <span class="eyebrow">${page.feature ? 'Feature walkthrough' : 'Demo overview'}</span>
+          <h2>${escapeHtml(page.title)}</h2>
+          <p>${escapeHtml(page.description)}</p>
+          ${page.feature ? `<p>This page keeps the feature video first, then gives reviewers the operational context they need: what the feature demonstrates, why it matters in the CrimeLens workflow, and where it fits inside the AI-assisted dispatch lifecycle.</p>` : `<p>Use the sidebar to switch between the introduction, the complete project walkthrough, and focused feature videos. The layout mirrors the documentation experience so the demo area feels like part of the same product.</p>`}
+        </section>
+        <section id="feature-list" class="section-block">
+          <div class="section-heading"><div><h2>Feature Videos</h2><p>Open any feature to watch its walkthrough with the description directly underneath.</p></div></div>
+          <div class="card-grid demo-feature-grid">
+            ${demoFeatures.map(feature => `<a class="quick-card demo-feature-card ${feature.slug === page.slug ? 'active' : ''}" href="#/demo/${feature.slug}"><small>Feature Demo</small><h3>${escapeHtml(feature.title)}</h3><p>${escapeHtml(feature.description)}</p></a>`).join('')}
+          </div>
+        </section>
+        ${page.feature ? `<nav class="doc-pagination" aria-label="Demo navigation">
+          ${prevFeature ? `<a class="page-link prev" href="#/demo/${prevFeature.slug}"><small>Previous feature</small><strong>← ${escapeHtml(prevFeature.title)}</strong></a>` : '<span></span>'}
+          ${nextFeature ? `<a class="page-link next" href="#/demo/${nextFeature.slug}"><small>Next feature</small><strong>${escapeHtml(nextFeature.title)} →</strong></a>` : '<span></span>'}
+        </nav>` : ''}
+      </article>`;
+    $('#main').focus({preventScroll:true});
+    window.scrollTo({top:0, behavior:'instant'});
+  }
+
   function renderToc(doc){
     const items = doc.headings.filter(h => h.level >= 2 && h.level <= 3).slice(0, 24);
     $('#toc').innerHTML = items.length ? items.map(h=>`<a class="level-${h.level}" href="#${h.id}" data-heading="${h.id}">${escapeHtml(h.title)}</a>`).join('') : '<span class="empty-state">No headings</span>';
@@ -169,6 +314,10 @@
       section?.classList.remove('collapsed');
       section?.querySelector('.nav-section-toggle')?.setAttribute('aria-expanded','true');
     }
+  }
+
+  function setActiveDemoNav(slug){
+    $$('.demo-nav-link').forEach(a => a.classList.toggle('active', a.dataset.demoSlug === slug));
   }
 
   function setupHeadingObserver(){
@@ -199,6 +348,8 @@
     if(hash === '/' || hash === '') return renderHome();
     const m = hash.match(/^\/docs\/([^#]+)(?:#(.+))?/);
     if(m) return renderDoc(m[1], m[2] || '');
+    const demo = hash.match(/^\/demo\/([^#]+)?/);
+    if(demo) return renderDemo(demo[1] || 'intro');
     renderHome();
   }
 
@@ -267,6 +418,12 @@
 
   function navigateRelative(delta){
     if(!state.currentSlug){
+      if(state.currentDemoSlug){
+        const idx = demoPages.findIndex(x => x.slug === state.currentDemoSlug);
+        const target = demoPages[idx + delta];
+        if(target) location.hash = `#/demo/${target.slug}`;
+        return;
+      }
       location.hash = delta > 0 ? '#/docs/overview' : '#/docs/glossary';
       return;
     }
