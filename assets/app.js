@@ -355,7 +355,16 @@
 
   function buildSearchRows(query){
     const q = query.trim().toLowerCase();
-    if(!q) return docs.slice(0,8).map(d => ({doc:d, score:1, title:d.title, text:d.description}));
+    const demoSearchRows = demoPages.map(page => ({
+      demo: page,
+      score: 1,
+      title: `Demo › ${page.title}`,
+      text: page.description
+    }));
+    if(!q) return [
+      ...docs.slice(0,6).map(d => ({doc:d, score:1, title:d.title, text:d.description})),
+      ...demoSearchRows.slice(0,6)
+    ];
     const tokens = q.split(/\s+/).filter(Boolean);
     const rows = [];
     for(const doc of docs){
@@ -369,6 +378,16 @@
       const heading = doc.headings.find(h => tokens.some(t => h.title.toLowerCase().includes(t)));
       if(heading) score += 6;
       if(score) rows.push({doc, score, title: heading ? `${doc.title} › ${heading.title}` : doc.title, heading, text: doc.description});
+    }
+    for(const page of demoPages){
+      const hay = `demo video feature ${page.title} ${page.type} ${page.description}`.toLowerCase();
+      let score = 0;
+      for(const t of tokens){
+        if(page.title.toLowerCase().includes(t)) score += 10;
+        if((page.type || '').toLowerCase().includes(t)) score += 5;
+        if(hay.includes(t)) score += 3;
+      }
+      if(score) rows.push({demo: page, score, title: `Demo › ${page.title}`, text: page.description});
     }
     return rows.sort((a,b)=>b.score-a.score).slice(0,12);
   }
@@ -386,7 +405,10 @@
     const q = input.value;
     const rows = buildSearchRows(q);
     state.searchIndex = clamp(state.searchIndex,0,Math.max(rows.length-1,0));
-    $('#search-results').innerHTML = rows.length ? rows.map((r,i)=>`<a class="search-result ${i===state.searchIndex?'active':''}" href="#/docs/${r.doc.slug}${r.heading ? '#'+r.heading.id : ''}" data-idx="${i}"><strong>${highlight(r.title,q)}</strong><span>${highlight(r.text,q)}</span></a>`).join('') : '<div class="empty-state">No results found. Try API, security, dispatch, camera, incident, testing.</div>';
+    $('#search-results').innerHTML = rows.length ? rows.map((r,i)=>{
+      const href = r.demo ? `#/demo/${r.demo.slug}` : `#/docs/${r.doc.slug}${r.heading ? '#'+r.heading.id : ''}`;
+      return `<a class="search-result ${i===state.searchIndex?'active':''}" href="${href}" data-idx="${i}"><strong>${highlight(r.title,q)}</strong><span>${highlight(r.text,q)}</span></a>`;
+    }).join('') : '<div class="empty-state">No results found. Try API, security, dispatch, camera, demo, video, priority.</div>';
     $$('.search-result').forEach(a => a.addEventListener('click', closeSearch));
   }
 
