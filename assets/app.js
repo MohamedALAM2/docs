@@ -14,12 +14,6 @@
       description: 'A focused walkthrough of the dispatcher flow: reviewing AI-created incidents, checking context, committing a crime, and assigning the right field officer with a clear audit trail.'
     },
     {
-      slug: 'priority-engine',
-      title: 'Priority Engine',
-      video: 'priority-engine.mp4',
-      description: 'Shows how CrimeLens turns confidence, crime type, weapon signals, crowd context, time, and repeat-area data into an explainable operational priority.'
-    },
-    {
       slug: 'citizen-tips',
       title: 'Citizen Tips',
       video: 'citizen-tips.mp4',
@@ -30,12 +24,6 @@
       title: 'Cameras & Streaming',
       video: 'cameras-and-streaming.mp4',
       description: 'Covers camera monitoring, gateway-backed playback, evidence recording, stream handoff, and the way camera feeds support the dispatch workflow.'
-    },
-    {
-      slug: 'ai-integration',
-      title: 'AI Model Integration',
-      video: 'ai-model-integration.mp4',
-      description: 'Explains how the AI service reports detections through constrained machine APIs while CrimeLens keeps dispatch authority with the backend and human operator.'
     },
     {
       slug: 'field-ops',
